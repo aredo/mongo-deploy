@@ -1,0 +1,35 @@
+---
+- name: Deploy multiple mongodb replica set
+  hosts: app
+  vars_files:
+    - "vars/replica-{{mongo_version}}.yml"
+  tasks:
+    - name: Start mongodb replica istances
+      docker:
+        name: "mongo-replica-{{mongo_version}}-{{item}}"
+        image: mongo:{{mongo_version}}
+        state: started
+        hostname: "node-{{item}}"
+        command: mongod --smallfiles --keyFile /opt/keyfile/mongodb-keyfile --replSet "rs0"
+        restart_policy: always
+        docker_api_version: 1.21
+        volumes:
+          - "{{root_data}}/{{item}}:/data/db"
+          - "{{root}}/keys:/opt/keyfile"
+        ports:
+          - "{{item}}:27017"
+      with_items: mongo_instance_ports
+      register: instances_start
+
+    - name: Pause for a 20 sec to let instances boot up
+      pause: seconds=20
+      when: instances_start.changed
+
+    - name: Create the file to initialize the mongod replica set
+      template: src=init_replica.j2 dest=/tmp/init_replica.js
+
+    - name: Initialize the replication set
+      shell: /usr/bin/mongo  "{{ansible_ssh_host}}:{{ mongo_master_port }}/admin" /tmp/init_replica.js
+      register: result
+
+    - debug: var=result

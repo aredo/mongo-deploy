@@ -1,0 +1,21 @@
+conn = new Mongo("{{ansible_ssh_host}}:{{mongo_master_port}}")
+db = conn.getDB("admin");
+print('Connected to admin db')
+db.auth( "admin", "password")
+print('Authorized to admin db')
+
+cfg={
+    _id: 'rs0',
+    members: null
+}
+
+members = []
+{% for i in range(0, 3) %}
+  members.push({_id: {{i}}, host: "{{ansible_ssh_host}}:{{ mongo_instance_ports[i] }}"})
+{% endfor %}
+cfg.members = members
+
+db.adminCommand({'replSetInitiate' : cfg})
+print('Initialized replica set')
+sleep(13000)
+db.runCommand( { replSetGetStatus : 1 } )

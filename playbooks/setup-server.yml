@@ -1,0 +1,16 @@
+---
+- name: Setup a server
+  hosts: app
+  roles:
+    - angstwad.docker_ubuntu
+  tasks:
+    - name: MongoDB | Fetch mongodb signing key
+      command: apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+
+    - name: MongoDB | Add mongodb org repository
+      shell: echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+      args:
+        creates: /etc/apt/sources.list.d/mongodb-org-3.2.list
+
+    - name: MongoDB | Install latest MongoDB release
+      apt: pkg=mongodb-org state=present update_cache=yes

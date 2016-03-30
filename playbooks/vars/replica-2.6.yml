@@ -1,0 +1,4 @@
+root: /home/mongo
+mongo_instance_ports: [27000, 27001, 27002]
+mongo_master_port: "{{mongo_instance_ports[0]}}"
+root_data: "{{root}}/rs-data/{{mongo_version}}"

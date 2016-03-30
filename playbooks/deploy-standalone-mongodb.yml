@@ -1,0 +1,19 @@
+---
+- name: Deploy multiple mongodb versions
+  hosts: app
+  tasks:
+    - name: run mongodb
+      docker:
+        name: "mongo-{{item.v}}{{item.label}}"
+        image: mongo:{{item.v}}
+        state: reloaded
+        command: mongod {{item.params}}
+        restart_policy: always
+        docker_api_version: 1.18
+        ports:
+          - "{{item.port}}:27017"
+      with_items:
+        - { v: "2.6", port: "27018", label: "", params: ""}
+        - { v: "3.0", port: "27019", label: "", params: "--ipv6"}
+        - { v: "3.2", port: "27020", label: "", params: ""}
+        - { v: "3.2", port: "27021", label: "with-admin-auth", params: "--auth"}
