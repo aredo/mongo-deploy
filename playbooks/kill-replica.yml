@@ -1,0 +1,20 @@
+---
+- name: Stop replica set
+  hosts: app
+  vars_files:
+    - "vars/replica-{{mongo_version}}.yml"
+  tasks:
+    - name: Delete mongodb replica dockers
+      docker:
+        name: "mongo-replica-{{mongo_version}}-{{item}}"
+        image: "mongo:{{mongo_version}}"
+        state: absent
+        docker_api_version: 1.21
+      with_items: mongo_instance_ports
+      register: result
+
+    - debug: var=result
+
+    - name: Remove replica data directories
+      file: path="{{root_data}}/{{item}}" state=absent
+      with_items: "{{mongo_instance_ports}}"

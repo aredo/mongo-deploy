@@ -1,2 +1,3 @@
 credentials.yml
 playbooks/files
+*.retry

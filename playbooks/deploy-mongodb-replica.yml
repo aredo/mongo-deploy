@@ -15,7 +15,7 @@
         docker_api_version: 1.21
         volumes:
           - "{{root_data}}/{{item}}:/data/db"
-          - "{{root}}/keys:/opt/keyfile"
+          - "{{root}}/keys/mongodb-keyfile:/opt/keyfile/mongodb-keyfile"
         ports:
           - "{{item}}:27017"
       with_items: mongo_instance_ports

@@ -20,8 +20,13 @@
         chdir: "{{root}}/keys"
         creates: "mongodb-keyfile"
 
-    - name: The mongodb-keyfile owner was changed to a user id of “999" because the user in the MongoDB Docker container is the one that needs to access this key file.
-      shell: chdir="{{root}}/keys" state=file mode=0600 group=999
+    - name: Change keyfile group, user to be mongodb (999)
+      file: path="{{item}}" mode=0600 owner=999 group=999
+      with_items:
+        - "{{root}}/keys"
+        - "{{root}}/keys/mongodb-keyfile"
+      tags:
+        - "permissions"
 
     - name: Start first replica mongodb instance
       docker:
@@ -34,7 +39,7 @@
         docker_api_version: 1.21
         volumes:
           - "{{root_data}}/{{mongo_master_port}}:/data/db"
-          - "{{root}}/keys:/opt/keyfile"
+          - "{{root}}/keys/mongodb-keyfile:/opt/keyfile/mongodb-keyfile"
         ports:
           - "{{mongo_master_port}}:27017"
 

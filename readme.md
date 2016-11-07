@@ -17,3 +17,20 @@ sudo ansible-galaxy install -r requirements.txt -f
 ```
 ./bin/deploy.sh -i hosts/staging -e "env=staging"
 ```
+
+## Deploy replica sets
+
+Replica set deployments consist two steps:
+
+1. Initialization - setup keys and admin user. For example: ```./bin/init-replica.sh --extra-vars "mongo_version=2.6"```
+2. Replica deployment. For example: ```./bin/deploy-replica.sh --extra-vars "mongo_version=2.6"```
+
+Separate configuration file need to be defined for each `mongo_version` and the name should use following
+pattern: ```replica-{{mongo_version}}.yml```
+
+
+Removing replica set and data:
+
+```
+./bin/kill-replica.sh --extra-vars "mongo_version=2.6"
+```
