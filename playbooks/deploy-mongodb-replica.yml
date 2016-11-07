@@ -7,7 +7,7 @@
     - name: Start mongodb replica istances
       docker:
         name: "mongo-replica-{{mongo_version}}-{{item}}"
-        image: mongo:{{mongo_version}}
+        image: "mongo:{{mongo_version}}"
         state: started
         hostname: "node-{{item}}"
         command: mongod --smallfiles --keyFile /opt/keyfile/mongodb-keyfile --replSet "rs0"

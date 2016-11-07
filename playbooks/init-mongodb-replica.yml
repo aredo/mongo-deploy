@@ -5,20 +5,20 @@
     - "vars/replica-{{mongo_version}}.yml"
   tasks:
     - name: Create root directories
-      file: recurse=yes path={{item}} state=directory
+      file: recurse=yes path="{{item}}" state=directory
       with_items:
         - "{{root}}/keys"
         - "{{root_data}}"
 
     - name: Create mongodb replica data directories
       file: path="{{root_data}}/{{item}}" state=directory
-      with_items: mongo_instance_ports
+      with_items: "{{mongo_instance_ports}}"
 
     - name: Create key-file for replica instances internal comunication
       shell: openssl rand -base64 741 > mongodb-keyfile
       args:
         chdir: "{{root}}/keys"
-        creates: mongodb-keyfile
+        creates: "mongodb-keyfile"
 
     - name: The mongodb-keyfile owner was changed to a user id of “999" because the user in the MongoDB Docker container is the one that needs to access this key file.
       shell: chdir="{{root}}/keys" state=file mode=0600 group=999
@@ -26,7 +26,7 @@
     - name: Start first replica mongodb instance
       docker:
         name: "mongo-replica-{{mongo_version}}-{{mongo_master_port}}"
-        image: mongo:{{mongo_version}}
+        image: "mongo:{{mongo_version}}"
         state: started
         hostname: "node-{{mongo_master_port}}"
         command: mongod --smallfiles
@@ -50,6 +50,6 @@
     - name: Stop first replica mongodb instance
       docker:
         name: "mongo-replica-{{mongo_version}}-{{mongo_master_port}}"
-        image: mongo:{{mongo_version}}
+        image: "mongo:{{mongo_version}}"
         state: stopped
         docker_api_version: 1.21
